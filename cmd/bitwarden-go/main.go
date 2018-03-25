@@ -15,14 +15,19 @@ import (
 )
 
 func init() {
-	flag.BoolVar(&cfg.initDB, "init", false, "Initalizes the database.")
-	flag.StringVar(&cfg.location, "location", "", "Sets the directory for the database")
-	flag.StringVar(&cfg.signingKey, "key", "secret", "Sets the signing key")
-	flag.IntVar(&cfg.jwtExpire, "tokenTime", 3600, "Sets the ammount of time (in seconds) the generated JSON Web Tokens will last before expiry.")
-	flag.StringVar(&cfg.hostAddr, "host", "", "Sets the interface that the application will listen on.")
-	flag.StringVar(&cfg.hostPort, "port", "8000", "Sets the port")
-	flag.StringVar(&cfg.vaultURL, "vaultURL", "", "Sets the vault proxy url")
-	flag.BoolVar(&cfg.disableRegistration, "disableRegistration", false, "Disables user registration.")
+	flag.BoolVar(&bw.Cfg.InitDB, "init", false, "Initializes the database.")
+	flag.StringVar(&bw.Cfg.Location, "location", "", "Sets the directory for the database")
+	flag.StringVar(&bw.Cfg.SigningKey, "key", "secret", "Sets the signing key")
+	flag.IntVar(&bw.Cfg.JwtExpire, "tokenTime", 3600, "Sets the amount of time (in seconds) the generated JSON Web Tokens will last before expiry.")
+	flag.StringVar(&bw.Cfg.HostAddr, "host", "", "Sets the interface that the application will listen on.")
+	flag.StringVar(&bw.Cfg.HostPort, "port", "8000", "Sets the port")
+	flag.StringVar(&bw.Cfg.VaultURL, "VaultURL", "", "Sets the vault proxy url")
+	flag.StringVar(&bw.Cfg.Email, "Email", "", "Sets the Email for organization invite")
+	flag.StringVar(&bw.Cfg.EmailPassword, "emailPassword", "", "Sets the Email password")
+	flag.StringVar(&bw.Cfg.SmptServer, "smptServer", "", "Sets the smtpServer address")
+	flag.IntVar(&bw.Cfg.EmailPort, "emailPort", 587, "Sets the Port for the email server")
+	flag.BoolVar(&bw.Cfg.PrintInvite, "printInvite", true, "Print the Invitation  for the organization or send an Email")
+	flag.BoolVar(&bw.Cfg.DisableRegistration, "disableRegistration", false, "Disables user registration.")
 }
 
 func main() {
