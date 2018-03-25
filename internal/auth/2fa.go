@@ -8,7 +8,7 @@ import (
 	"log"
 	"net/http"
 
-	bw "github.com/VictorNine/bitwarden-go/internal/common"
+	bw "github.com/Odysseus16/bitwarden-go/internal/common"
 	"github.com/dgryski/dgoogauth"
 )
 
