@@ -14,17 +14,6 @@ import (
 	"github.com/gorilla/mux"
 )
 
-var cfg struct {
-	initDB              bool
-	location            string
-	signingKey          string
-	jwtExpire           int
-	hostAddr            string
-	hostPort            string
-	disableRegistration bool
-	vaultURL            string
-}
-
 func init() {
 	flag.BoolVar(&cfg.initDB, "init", false, "Initalizes the database.")
 	flag.StringVar(&cfg.location, "location", "", "Sets the directory for the database")
@@ -40,7 +29,7 @@ func main() {
 	db := &sqlite.DB{}
 	flag.Parse()
 
-	db.SetDir(cfg.location)
+	db.SetDir(bw.Cfg.Location)
 	err := db.Open()
 	if err != nil {
 		log.Fatal(err)
@@ -49,14 +38,14 @@ func main() {
 	defer db.Close()
 
 	// Create a new database
-	if cfg.initDB {
+	if bw.Cfg.InitDB {
 		err := db.Init()
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	authHandler := auth.New(db, cfg.signingKey, cfg.jwtExpire)
+	authHandler := auth.New(db, bw.Cfg.SigningKey, bw.Cfg.JwtExpire)
 	apiHandler := api.New(db)
 
 	target := "http://localhost:4001"
@@ -69,7 +58,7 @@ func main() {
 	//mux := chi.NewRouter()
 	mux := mux.NewRouter()
 
-	if cfg.disableRegistration == false {
+	if bw.Cfg.DisableRegistration == false {
 		mux.HandleFunc("/api/accounts/register", authHandler.HandleRegister)
 	}
 	mux.HandleFunc("/identity/connect/token", authHandler.HandleLogin)
