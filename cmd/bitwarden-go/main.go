@@ -4,11 +4,14 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 
-	"github.com/VictorNine/bitwarden-go/internal/api"
-	"github.com/VictorNine/bitwarden-go/internal/auth"
-	"github.com/VictorNine/bitwarden-go/internal/common"
-	"github.com/VictorNine/bitwarden-go/internal/database/sqlite"
+	"github.com/Odysseus16/bitwarden-go/internal/api"
+	"github.com/Odysseus16/bitwarden-go/internal/auth"
+	bw "github.com/Odysseus16/bitwarden-go/internal/common"
+	"github.com/Odysseus16/bitwarden-go/internal/database/sqlite"
+	"github.com/gorilla/mux"
 )
 
 var cfg struct {
@@ -56,7 +59,15 @@ func main() {
 	authHandler := auth.New(db, cfg.signingKey, cfg.jwtExpire)
 	apiHandler := api.New(db)
 
-	mux := http.NewServeMux()
+	target := "http://localhost:4001"
+	//target := bw.Cfg.HostAddr + ":" + bw.Cfg.HostPort
+	remote, err := url.Parse(target)
+	if err != nil {
+		panic(err)
+	}
+	proxy := httputil.NewSingleHostReverseProxy(remote)
+	//mux := chi.NewRouter()
+	mux := mux.NewRouter()
 
 	if cfg.disableRegistration == false {
 		mux.HandleFunc("/api/accounts/register", authHandler.HandleRegister)
@@ -71,9 +82,36 @@ func main() {
 	mux.Handle("/apifolders", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleFolder))) // The android app want's the address like this, will be fixed in the next version. Issue #174
 	mux.Handle("/api/sync", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleSync)))
 
-	mux.Handle("/api/ciphers/import", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleImport)))
-	mux.Handle("/api/ciphers", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleCipher)))
-	mux.Handle("/api/ciphers/", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleCipherUpdate)))
+	mux.Handle("/api/organizations", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleOrg)))
+	mux.Handle("/api/organizations/", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleOrg)))
+	mux.Handle("/api/organizations/users", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleOrgUsers)))
+	mux.Handle("/api/organizations/{orgId}/users/{orgUserId}/accept", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleOrgAcception)))
+	mux.Handle("/api/organizations/{orgId}/users/invite", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleOrgInvite)))
+	mux.Handle("/api/organizations/{orgId}/users", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleOrgUsers)))
+	mux.Handle("/api/users/{userId}/public-key", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleKey)))
+	mux.Handle("/api/organizations/{orgId}/users/{orgUserId}/confirm", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleKeyOrg))) //Get new org Key for the specific user! Set this key to the user and update status to 2
+	mux.Handle("/api/organizations/{orgId}/collections", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleOrgCollectionGet))).Methods("GET")
+	mux.Handle("/api/organizations/{orgId}/collections", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleOrgCollectionPost))).Methods("POST")
+
+	//mux.Handle("/api/ciphers/import", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleImport)))
+	mux.Handle("/api/ciphers", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleCipherPost))).Methods("POST")
+	mux.Handle("/api/ciphers", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleCipherGet))).Methods("GET")
+	mux.Handle("/api/ciphers/organization-details", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleOrgDetailsGet))).Methods("GET")
+	mux.Handle("/api/ciphers/admin", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleOrgCipherAdminPost))).Methods("POST")
+	mux.Handle("/api/ciphers/{cipherId}", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleCipherUpdateGet))).Methods("GET")
+	mux.Handle("/api/ciphers/{cipherId}", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleCipherUpdatePost))).Methods("POST")
+	mux.Handle("/api/ciphers/{cipherId}", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleCipherUpdatePost))).Methods("PUT") //iOS APP
+	mux.Handle("/api/ciphers/{cipherId}", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleCipherDelete))).Methods("DELETE")  //iOS APP
+	mux.Handle("/api/ciphers/{cipherId}/delete", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleCipherDelete))).Methods("POST")
+	mux.Handle("/api/ciphers/{Id}/admin", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleOrgEditCipherGet))).Methods("GET")
+	mux.Handle("/api/ciphers/{Id}/admin", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleOrgCipherUpdateAdminPost))).Methods("POST")
+
+	mux.HandleFunc("/attachments/", api.HandleAttachments)
+	if len(bw.Cfg.VaultURL) > 4 {
+
+		mux.HandleFunc("/{rest:.*}", handler(proxy))
+		http.Handle("/", mux)
+		http.ListenAndServe(":8000", mux)
 
 	if len(cfg.vaultURL) > 4 {
 		proxy := common.Proxy{VaultURL: cfg.vaultURL}
