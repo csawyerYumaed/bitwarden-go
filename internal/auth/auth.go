@@ -76,7 +76,7 @@ func (auth *Auth) HandleRegister(w http.ResponseWriter, req *http.Request) {
 		log.Println(err)
 		return
 	}
-
+	acc.Organizations = bw.OrganizationsData{}
 	err = auth.db.AddAccount(acc)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -199,7 +199,7 @@ func (auth *Auth) HandleLogin(w http.ResponseWriter, req *http.Request) {
 	claims["sub"] = "NA"
 	claims["email"] = acc.Email
 	claims["name"] = acc.Name
-	claims["premium"] = false
+	claims["premium"] = true
 	tokenString, _ := token.SignedString(auth.signingKey)
 
 	rtoken := resToken{AccessToken: tokenString,
