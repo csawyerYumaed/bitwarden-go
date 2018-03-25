@@ -102,16 +102,17 @@ func main() {
 		http.Handle("/", mux)
 		http.ListenAndServe(":8000", mux)
 
-	if len(cfg.vaultURL) > 4 {
-		proxy := common.Proxy{VaultURL: cfg.vaultURL}
-		mux.Handle("/", http.HandlerFunc(proxy.Handler))
 	}
-
 	mux.Handle("/api/two-factor/get-authenticator", authHandler.JwtMiddleware(http.HandlerFunc(authHandler.GetAuthenticator)))
 	mux.Handle("/api/two-factor/authenticator", authHandler.JwtMiddleware(http.HandlerFunc(authHandler.VerifyAuthenticatorSecret)))
 	mux.Handle("/api/two-factor/disable", authHandler.JwtMiddleware(http.HandlerFunc(authHandler.HandleDisableTwoFactor)))
 	mux.Handle("/api/two-factor", authHandler.JwtMiddleware(http.HandlerFunc(authHandler.HandleTwoFactor)))
+	log.Println("Starting server on " + bw.Cfg.HostAddr + ":" + bw.Cfg.HostPort)
+}
 
-	log.Println("Starting server on " + cfg.hostAddr + ":" + cfg.hostPort)
-	log.Fatal(http.ListenAndServe(cfg.hostAddr+":"+cfg.hostPort, mux))
+func handler(p *httputil.ReverseProxy) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		r.URL.Path = mux.Vars(r)["rest"]
+		p.ServeHTTP(w, r)
+	}
 }
