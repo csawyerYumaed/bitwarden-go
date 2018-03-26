@@ -34,6 +34,7 @@ type CollectionIds []string
 type Fields []Field
 type Ciphers []Cipher
 type CiphersPost []CipherPost
+type Uriss []Uris
 
 type Account struct {
 	Id                 string            `json:"id"`
@@ -152,7 +153,6 @@ type PostCiphers struct { //used
 	Object            string
 }
 
-type Uriss []Uris
 type Cipher struct {
 	CollectionIds       *CollectionIds
 	FolderId            *string
@@ -393,7 +393,7 @@ type SecureNote struct {
 
 type Uris struct {
 	Uri   *string
-	Match *string
+	Match *int
 }
 type Field struct {
 	Type  int
