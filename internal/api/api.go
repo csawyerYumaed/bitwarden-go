@@ -567,14 +567,8 @@ func (h *APIHandler) HandleFolderUpdate(w http.ResponseWriter, req *http.Request
 }
 
 func (h *APIHandler) HandleOrg(w http.ResponseWriter, req *http.Request) {
-	//invite := false
 	bConfirm := false
-	users := false
-	//invite = strings.Contains(req.URL.Path, "invite")
-	users = strings.Contains(req.URL.Path, "users")
 	bConfirm = strings.Contains(req.URL.Path, "confirm")
-	collections := false
-	collections = strings.Contains(req.URL.Path, "collections")
 	id, error1 := uuid.NewV1()
 	if error1 != nil {
 		log.Println("Error with the ID", error1)
@@ -582,120 +576,61 @@ func (h *APIHandler) HandleOrg(w http.ResponseWriter, req *http.Request) {
 	switch bConfirm {
 	case false:
 		{
-			switch collections {
-			case true:
-				{
-					/**orgCiphers := bw.OrgCiphers{}
-					data1 := bw.OrgDatas{
-						Data:              orgCiphers,
-						ContinuationToken: nil,
-						Object:            "list",
-					}
-					data, err := json.Marshal(data1)
-					if err != nil {
-						log.Fatal(err)
-					}
-					w.Header().Set("Content-Type", "application/json")
-					w.Write(data)**/
-				}
-			case false:
-				{
-					switch users {
-					case false:
-						{
-							switch req.Method {
-							case "GET":
-								/**email := auth.GetEmail(req)
-													acc, err := h.db.GetAccount(email, "")
-													for _, value := range acc.Organizations {
-													fmt.Printf("%d\n", value)
-								          }
-													org := bw.OrgData{
-														Id:							"",
-														Name:           norg.Name,
-														Key:            norg.Key,
-														Status:         2,
-														Type:           0,
-														Enabled:        true,
-														MaxCollections: 2,
-														MaxStorageGb:   0,
-														Seats:          2,
-														UseGroups:      false,
-														UseEvents:      false,
-														UseDirectory:   false,
-														UseTotp:        false,
-														Object:         "profileOrganization",
-													}
-													data1, err1 := json.Marshal(&org)
-													if err1 != nil {
-														log.Fatal(err1)
-													}
-													w.Header().Set("Content-Type", "application/json")
-													w.Write(data1)**/
-							case "POST":
-								email := auth.GetEmail(req)
-								acc, err := h.db.GetAccount(email, "")
-								decoder := json.NewDecoder(req.Body)
-								err = decoder.Decode(&norg)
-								if err != nil {
-									log.Fatal(err)
-								}
-								defer req.Body.Close()
-								org := bw.OrgData{
-									Id:             id.String(),
-									Name:           norg.Name,
-									Key:            norg.Key,
-									Status:         2,
-									Type:           0,
-									Enabled:        true,
-									MaxCollections: 2,
-									MaxStorageGb:   0,
-									Seats:          2,
-									UseGroups:      false,
-									UseEvents:      false,
-									UseDirectory:   false,
-									UseTotp:        false,
-									Object:         "profileOrganization",
-								}
-								organization := bw.OrganizationsData{
-									org,
-								}
-								b, err := uuid.NewV1()
-								if error1 != nil {
-									log.Println("Error with the ID", error1)
-								}
-								acc.Organizations = organization
-								h.db.UpdateAccountInfo(acc)
-
-								orgUser := bw.OrgUserwId{
-									Id:        b.String(),
-									OrgId:     org.Id,
-									UserId:    acc.Id,
-									Name:      acc.Name,
-									Email:     acc.Email,
-									Status:    2,
-									Type:      0,
-									AccessAll: true,
-									Object:    "organizationUserUserDetails",
-								}
-								err1 := h.db.AddOrgUser(orgUser)
-								if err1 != nil {
-									log.Fatal(err)
-								}
-								data, err := json.Marshal(&org)
-								if err != nil {
-									log.Fatal(err)
-								}
-								w.Header().Set("Content-Type", "application/json")
-								w.Write(data)
-							}
-						}
-					case true:
-						{
-						}
-					}
-				}
+			email := auth.GetEmail(req)
+			acc, err := h.db.GetAccount(email, "")
+			decoder := json.NewDecoder(req.Body)
+			err = decoder.Decode(&norg)
+			if err != nil {
+				log.Fatal(err)
 			}
+			defer req.Body.Close()
+			org := bw.OrgData{
+				Id:             id.String(),
+				Name:           norg.Name,
+				Key:            norg.Key,
+				Status:         2,
+				Type:           0,
+				Enabled:        true,
+				MaxCollections: 2,
+				MaxStorageGb:   0,
+				Seats:          2,
+				UseGroups:      false,
+				UseEvents:      false,
+				UseDirectory:   false,
+				UseTotp:        false,
+				Object:         "profileOrganization",
+			}
+			organization := bw.OrganizationsData{
+				org,
+			}
+			b, err := uuid.NewV1()
+			if error1 != nil {
+				log.Println("Error with the ID", error1)
+			}
+			acc.Organizations = organization
+			h.db.UpdateAccountInfo(acc)
+
+			orgUser := bw.OrgUserwId{
+				Id:        b.String(),
+				OrgId:     org.Id,
+				UserId:    acc.Id,
+				Name:      acc.Name,
+				Email:     acc.Email,
+				Status:    2,
+				Type:      0,
+				AccessAll: true,
+				Object:    "organizationUserUserDetails",
+			}
+			err1 := h.db.AddOrgUser(orgUser)
+			if err1 != nil {
+				log.Fatal(err)
+			}
+			data, err := json.Marshal(&org)
+			if err != nil {
+				log.Fatal(err)
+			}
+			w.Header().Set("Content-Type", "application/json")
+			w.Write(data)
 		}
 	case true:
 		{
@@ -913,7 +848,6 @@ func (h *APIHandler) HandleOrgUsers(w http.ResponseWriter, req *http.Request) {
 
 func (h *APIHandler) HandleOrgAcception(w http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
-	//orgId1 := vars["orgId"]
 	orgUserId := vars["orgUserId"]
 	user, err := h.db.GetOrgUser(orgUserId)
 	if err != nil {
@@ -1085,13 +1019,19 @@ func unmarshalCipherLoginOrg(v *jason.Object, update bool, Id string) (bw.Cipher
 	//Login
 	password, _ := checkNullString(v.GetString("login", "password"))
 	//totp, _ := checkNullString(v.GetString("login", "totp"))
-	uris, _ := v.GetObjectArray("login", "uirs")
-	for _, uri := range uris {
-		match, _ := checkNullString(uri.GetString("match"))
-		uir1, _ := checkNullString(uri.GetString("uri"))
-		u.Match = match
-		u.Uri = uir1
-		us = append(us, u)
+	uris, _ := v.GetObjectArray("login", "uris")
+	if len(uris) > 0 {
+		for _, uri := range uris {
+			match, _ := checkNullInt(uri.GetInt64("match"))
+			uir1, _ := checkNullString(uri.GetString("uri"))
+			u.Match = match
+			u.Uri = uir1
+			us = append(us, u)
+		}
+	} else {
+		us = bw.Uriss{
+			bw.Uris{},
+		}
 	}
 	username, _ := checkNullString(v.GetString("login", "username"))
 
@@ -1113,11 +1053,8 @@ func unmarshalCipherLoginOrg(v *jason.Object, update bool, Id string) (bw.Cipher
 	cM.Edit = edit
 	cM.Id = &id
 	cM.Type = 1
-	cDL.Uri = nil
-	utest := bw.Uriss{
-		bw.Uris{},
-	}
-	cDL.Uris = utest
+	cDL.Uri = us[0].Uri
+	cDL.Uris = us
 	cDL.Username = username
 	cDL.Password = password
 	cDL.Totp = nil
@@ -1130,11 +1067,8 @@ func unmarshalCipherLoginOrg(v *jason.Object, update bool, Id string) (bw.Cipher
 	cM.Name = name
 	cM.Notes = notes
 	cM.OrganizationId = organizationId
-	l.Uri = nil
-	uriss := bw.Uriss{
-		bw.Uris{},
-	}
-	l.Uris = &uriss
+	l.Uri = us[0].Uri
+	l.Uris = &us
 	l.Username = username
 	l.Password = password
 	l.Totp = nil
@@ -1184,13 +1118,20 @@ func unmarshalCipher(v *jason.Object, update bool, Id string) (bw.Cipher, error)
 	}
 	//Login
 	password, _ := checkNullString(v.GetString("login", "password"))
-	uris, _ := v.GetObjectArray("login", "uirs")
-	for _, uri := range uris {
-		match, _ := checkNullString(uri.GetString("match"))
-		uir1, _ := checkNullString(uri.GetString("uri"))
-		u.Match = match
-		u.Uri = uir1
-		us = append(us, u)
+	//Uri
+	uris, _ := v.GetObjectArray("login", "uris")
+	if len(uris) > 0 {
+		for _, uri := range uris {
+			match, _ := checkNullInt(uri.GetInt64("match"))
+			uir1, _ := checkNullString(uri.GetString("uri"))
+			u.Match = match
+			u.Uri = uir1
+			us = append(us, u)
+		}
+	} else {
+		us = bw.Uriss{
+			bw.Uris{},
+		}
 	}
 	username, _ := checkNullString(v.GetString("login", "username"))
 
@@ -1213,11 +1154,8 @@ func unmarshalCipher(v *jason.Object, update bool, Id string) (bw.Cipher, error)
 	cM.Id = &id             // create Id
 	cM.OrganizationId = nil //&organizationId
 	cM.Type = 1
-	cDL.Uri = nil
-	utest := bw.Uriss{
-		bw.Uris{},
-	}
-	cDL.Uris = utest
+	cDL.Uri = us[0].Uri
+	cDL.Uris = us
 	cDL.Username = username
 	cDL.Password = password
 	cDL.Totp = nil
@@ -1230,11 +1168,8 @@ func unmarshalCipher(v *jason.Object, update bool, Id string) (bw.Cipher, error)
 	cM.Name = name
 	cM.Notes = notes
 	cM.OrganizationId = organizationId
-	l.Uri = nil
-	uriss := bw.Uriss{
-		bw.Uris{},
-	}
-	l.Uris = &uriss
+	l.Uri = us[0].Uri
+	l.Uris = &us
 	l.Username = username
 	l.Password = password
 	l.Totp = nil
@@ -1286,7 +1221,7 @@ func unmarshalCipheriOS(v *jason.Object, update bool, Id string) (bw.Cipher, err
 	uris, _ := v.GetObjectArray("Login", "Uirs")
 	if len(uris) > 0 {
 		for _, uri := range uris {
-			match, _ := checkNullString(uri.GetString("Match"))
+			match, _ := checkNullInt(uri.GetInt64("Match"))
 			uir1, _ := checkNullString(uri.GetString("Uri"))
 			u.Match = match
 			u.Uri = uir1
@@ -1316,11 +1251,8 @@ func unmarshalCipheriOS(v *jason.Object, update bool, Id string) (bw.Cipher, err
 	cM.Id = &id             // create Id
 	cM.OrganizationId = nil //&organizationId
 	cM.Type = 1
-	cDL.Uri = nil
-	utest := bw.Uriss{
-		bw.Uris{},
-	}
-	cDL.Uris = utest
+	cDL.Uri = us[0].Uri
+	cDL.Uris = us
 	cDL.Username = username
 	cDL.Password = password
 	cDL.Totp = nil
@@ -1333,11 +1265,8 @@ func unmarshalCipheriOS(v *jason.Object, update bool, Id string) (bw.Cipher, err
 	cM.Name = name
 	cM.Notes = notes
 	cM.OrganizationId = organizationId
-	l.Uri = nil
-	uriss := bw.Uriss{
-		bw.Uris{},
-	}
-	l.Uris = &uriss
+	l.Uri = us[0].Uri
+	l.Uris = &us
 	l.Username = username
 	l.Password = password
 	l.Totp = nil
@@ -1533,7 +1462,7 @@ func transformCipherToPost(cipher bw.Cipher) bw.CipherPost {
 	switch cipher.Type {
 	case 1:
 		cipher.CollectionIds = &bw.CollectionIds{}
-		if len(*cipher.Fields) == 0 {
+		if cipher.Fields == nil {
 			cipher.Fields = &bw.Fields{}
 		}
 		cipherPost := bw.CipherPost{
@@ -1598,5 +1527,14 @@ func checkNullString(s string, e error) (*string, error) {
 		return nil, e
 	} else {
 		return &s, e
+	}
+}
+func checkNullInt(i int64, e error) (*int, error) {
+	if i == 0 && e != nil {
+		return nil, e
+	} else {
+		type2 := strconv.FormatInt(i, 10)
+		type3, _ := strconv.Atoi(type2)
+		return &type3, e
 	}
 }
