@@ -97,6 +97,7 @@ func main() {
 	mux.Handle("/api/ciphers/{cipherId}", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleCipherUpdatePost))).Methods("PUT") //iOS APP
 	mux.Handle("/api/ciphers/{cipherId}", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleCipherDelete))).Methods("DELETE")  //iOS APP
 	mux.Handle("/api/ciphers/{cipherId}/delete", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleCipherDelete))).Methods("POST")
+	mux.Handle("/api/ciphers/{cipherId}/delete-admin", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleCipherDelete))).Methods("POST")
 	mux.Handle("/api/ciphers/{Id}/admin", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleOrgEditCipherGet))).Methods("GET")
 	mux.Handle("/api/ciphers/{Id}/admin", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleOrgCipherUpdateAdminPost))).Methods("POST")
 

@@ -284,7 +284,11 @@ func (h *APIHandler) HandleCipherGet(w http.ResponseWriter, req *http.Request) {
 	if orgUser.Email != "" {
 		orgCiphers, _ := h.db.GetCiphersOrg(orgUser.OrgId)
 		for _, cipher := range orgCiphers {
-			cipherspost = append(cipherspost, transformCipherToPost(cipher))
+			if containsCipher(cipherspost, cipher) == false {
+				cipherspost = append(cipherspost, transformCipherToPost(cipher))
+			} else {
+				continue
+			}
 		}
 	}
 	post := bw.PostCiphers{
@@ -433,7 +437,11 @@ func (h *APIHandler) HandleSync(w http.ResponseWriter, req *http.Request) {
 	if orgUser.Email != "" {
 		orgCiphers, _ := h.db.GetCiphersOrg(orgUser.OrgId)
 		for _, cipher := range orgCiphers {
-			cipherspost = append(cipherspost, transformCipherToPost(cipher))
+			if containsCipher(cipherspost, cipher) == false {
+				cipherspost = append(cipherspost, transformCipherToPost(cipher))
+			} else {
+				continue
+			}
 		}
 	}
 	folders, err := h.db.GetFolders(acc.Id)
@@ -1537,4 +1545,14 @@ func checkNullInt(i int64, e error) (*int, error) {
 		type3, _ := strconv.Atoi(type2)
 		return &type3, e
 	}
+}
+
+func containsCipher(ciphersPost bw.CiphersPost, cipher bw.Cipher) bool {
+	for _, c := range ciphersPost {
+		if *c.Id == *cipher.Id {
+			return true
+		}
+		continue
+	}
+	return false
 }
