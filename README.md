@@ -80,10 +80,12 @@ At the moment these flags are available:
 - Add Ciphers:
     - Login Cipher:
         - Name, Folder, Username, Password, Notes
-        - Custom Fields (at the moment only Text)
+        - Custom Fields
+		- URIs
+		- Totp
     - Card Cipher:
         - Name, Folder, Brand, Number, Expiration Month, Expiration Year
-        - Custom Fields (at the moment only Text)
+        - Custom Fields
 - Create Organizations:
     - Invite users with an email or with login-link
     - Login Cipher and Card Cipher as above
@@ -111,10 +113,10 @@ bitwarden-go -VaultURL http://localhost:4001
 Email with the invitation link is sent to the person. 
 
 #### What is planned for the future:
-- Full support of Login Cipher
-- Full support of Card Cipher
+- ~~Full support of Login Cipher~~ (testing required)
+- ~~Full support of Card Cipher~~ (testing required)
 - Add Identity and SecureNote
-- Add Totp
+- ~~Add Totp~~ (testing required)
 - Attachments support
 - Collection support
 
