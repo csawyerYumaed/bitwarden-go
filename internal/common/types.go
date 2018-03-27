@@ -19,6 +19,9 @@ var Cfg struct {
 	EmailPort           int
 	SmptServer          string
 	PrintInvite         bool
+	UseHTTPS            bool
+	Key                 string
+	Crt                 string
 }
 
 type KeyPair struct {

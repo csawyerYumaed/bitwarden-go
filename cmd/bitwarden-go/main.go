@@ -17,7 +17,7 @@ import (
 func init() {
 	flag.BoolVar(&bw.Cfg.InitDB, "init", false, "Initializes the database.")
 	flag.StringVar(&bw.Cfg.Location, "location", "", "Sets the directory for the database")
-	flag.StringVar(&bw.Cfg.SigningKey, "key", "secret", "Sets the signing key")
+	flag.StringVar(&bw.Cfg.SigningKey, "singingKey", "secret", "Sets the signing key")
 	flag.IntVar(&bw.Cfg.JwtExpire, "tokenTime", 3600, "Sets the amount of time (in seconds) the generated JSON Web Tokens will last before expiry.")
 	flag.StringVar(&bw.Cfg.HostAddr, "host", "", "Sets the interface that the application will listen on.")
 	flag.StringVar(&bw.Cfg.HostPort, "port", "8000", "Sets the port")
@@ -28,6 +28,9 @@ func init() {
 	flag.IntVar(&bw.Cfg.EmailPort, "emailPort", 587, "Sets the Port for the email server")
 	flag.BoolVar(&bw.Cfg.PrintInvite, "printInvite", true, "Print the Invitation  for the organization or send an Email")
 	flag.BoolVar(&bw.Cfg.DisableRegistration, "disableRegistration", false, "Disables user registration.")
+	flag.BoolVar(&bw.Cfg.UseHTTPS, "useHTTPS", false, "Enables HTTPS")
+	flag.StringVar(&bw.Cfg.Key, "key", "server.key", "Sets the location of the key file")
+	flag.StringVar(&bw.Cfg.Crt, "crt", "server.crt", "Sets the location of the crt file")
 }
 
 func main() {
@@ -106,7 +109,11 @@ func main() {
 
 		mux.HandleFunc("/{rest:.*}", handler(proxy))
 		http.Handle("/", mux)
-		http.ListenAndServe(":8000", mux)
+		if bw.Cfg.UseHTTPS == true {
+			http.ListenAndServeTLS(":8000", bw.Cfg.Crt, bw.Cfg.Key, mux)
+		} else {
+			http.ListenAndServe(":8000", mux)
+		}
 
 	}
 	mux.Handle("/api/two-factor/get-authenticator", authHandler.JwtMiddleware(http.HandlerFunc(authHandler.GetAuthenticator)))
