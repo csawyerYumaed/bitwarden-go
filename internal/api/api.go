@@ -1026,7 +1026,7 @@ func unmarshalCipherLoginOrg(v *jason.Object, update bool, Id string) (bw.Cipher
 	}
 	//Login
 	password, _ := checkNullString(v.GetString("login", "password"))
-	//totp, _ := checkNullString(v.GetString("login", "totp"))
+	totp, _ := checkNullString(v.GetString("login", "totp"))
 	uris, _ := v.GetObjectArray("login", "uris")
 	if len(uris) > 0 {
 		for _, uri := range uris {
@@ -1079,7 +1079,7 @@ func unmarshalCipherLoginOrg(v *jason.Object, update bool, Id string) (bw.Cipher
 	l.Uris = &us
 	l.Username = username
 	l.Password = password
-	l.Totp = nil
+	l.Totp = totp
 	cM.Login = &l
 	cM.Card = nil
 	cM.Identity = nil
@@ -1087,7 +1087,7 @@ func unmarshalCipherLoginOrg(v *jason.Object, update bool, Id string) (bw.Cipher
 	cM.Fields = &fs
 	cM.Attachments = nil // update
 	cipher := "cipherMini"
-	cM.OrganizationUseTotp = false
+	cM.OrganizationUseTotp = true
 	cM.RevisionDate = time.Now().UTC()
 	cM.Object = &cipher
 
@@ -1126,6 +1126,7 @@ func unmarshalCipher(v *jason.Object, update bool, Id string) (bw.Cipher, error)
 	}
 	//Login
 	password, _ := checkNullString(v.GetString("login", "password"))
+	totp, _ := checkNullString(v.GetString("login", "totp"))
 	//Uri
 	uris, _ := v.GetObjectArray("login", "uris")
 	if len(uris) > 0 {
@@ -1180,7 +1181,7 @@ func unmarshalCipher(v *jason.Object, update bool, Id string) (bw.Cipher, error)
 	l.Uris = &us
 	l.Username = username
 	l.Password = password
-	l.Totp = nil
+	l.Totp = totp
 	cM.Login = &l
 	cM.Card = nil
 	cM.Identity = nil
@@ -1188,7 +1189,7 @@ func unmarshalCipher(v *jason.Object, update bool, Id string) (bw.Cipher, error)
 	cM.Fields = &fs
 	cM.Attachments = nil // update
 	cipher := "cipher"
-	cM.OrganizationUseTotp = false
+	cM.OrganizationUseTotp = true
 	cM.RevisionDate = time.Now().UTC()
 	cM.Object = &cipher
 
@@ -1226,6 +1227,7 @@ func unmarshalCipheriOS(v *jason.Object, update bool, Id string) (bw.Cipher, err
 	}
 	//Login
 	password, _ := checkNullString(v.GetString("Login", "Password"))
+	totp, _ := checkNullString(v.GetString("Login", "Totp"))
 	uris, _ := v.GetObjectArray("Login", "Uirs")
 	if len(uris) > 0 {
 		for _, uri := range uris {
@@ -1263,7 +1265,7 @@ func unmarshalCipheriOS(v *jason.Object, update bool, Id string) (bw.Cipher, err
 	cDL.Uris = us
 	cDL.Username = username
 	cDL.Password = password
-	cDL.Totp = nil
+	cDL.Totp = totp
 	cDL.Name = name
 	cDL.Notes = notes
 	cDL.Fields = &fs
@@ -1285,7 +1287,7 @@ func unmarshalCipheriOS(v *jason.Object, update bool, Id string) (bw.Cipher, err
 	cM.Fields = &fs
 	cM.Attachments = nil // update
 	cipher := "cipher"
-	cM.OrganizationUseTotp = false
+	cM.OrganizationUseTotp = true
 	cM.RevisionDate = time.Now().UTC()
 	cM.Object = &cipher
 
@@ -1364,7 +1366,7 @@ func unmarshalCard(v *jason.Object, update bool, Id string) (bw.Cipher, error) {
 	cipher.Card = &c
 	cipher.Fields = &fs
 	cipher.Attachments = nil
-	cipher.OrganizationUseTotp = false
+	cipher.OrganizationUseTotp = true
 	cipher.RevisionDate = time.Now().UTC()
 	object := "cipher"
 	cipher.Object = &object
@@ -1444,7 +1446,7 @@ func unmarshalCardiOS(v *jason.Object, update bool, Id string) (bw.Cipher, error
 	cipher.Card = &c
 	cipher.Fields = &fs
 	cipher.Attachments = nil
-	cipher.OrganizationUseTotp = false
+	cipher.OrganizationUseTotp = true
 	cipher.RevisionDate = time.Now().UTC()
 	object := "cipher"
 	cipher.Object = &object
