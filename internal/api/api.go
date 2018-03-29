@@ -1261,7 +1261,11 @@ func unmarshalCipheriOS(v *jason.Object, update bool, Id string) (bw.Cipher, err
 	cM.Id = &id             // create Id
 	cM.OrganizationId = nil //&organizationId
 	cM.Type = 1
-	cDL.Uri = us[0].Uri
+	if len(us) == 0 {
+		cDL.Uri = nil
+	} else {
+		cDL.Uri = us[0].Uri
+	}
 	cDL.Uris = us
 	cDL.Username = username
 	cDL.Password = password
@@ -1275,7 +1279,11 @@ func unmarshalCipheriOS(v *jason.Object, update bool, Id string) (bw.Cipher, err
 	cM.Name = name
 	cM.Notes = notes
 	cM.OrganizationId = organizationId
-	l.Uri = us[0].Uri
+	if len(us) == 0 {
+		l.Uri = nil
+	} else {
+		l.Uri = us[0].Uri
+	}
 	l.Uris = &us
 	l.Username = username
 	l.Password = password
