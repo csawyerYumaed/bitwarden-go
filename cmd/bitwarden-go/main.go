@@ -100,11 +100,11 @@ func main() {
 	mux.Handle("/api/ciphers/{cipherId}", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleCipherUpdatePost))).Methods("PUT") //iOS APP
 	mux.Handle("/api/ciphers/{cipherId}", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleCipherDelete))).Methods("DELETE")  //iOS APP
 	mux.Handle("/api/ciphers/{cipherId}/delete", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleCipherDelete))).Methods("POST")
+	mux.Handle("/api/ciphers/{cipherId}/attachment", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleAttachments))).Methods("POST")
+	mux.HandleFunc("/attachments/{cipherId}/{attachmentId}", (api.HandleAttachmentGet)).Methods("GET")
 	mux.Handle("/api/ciphers/{cipherId}/delete-admin", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleCipherDelete))).Methods("POST")
 	mux.Handle("/api/ciphers/{Id}/admin", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleOrgEditCipherGet))).Methods("GET")
 	mux.Handle("/api/ciphers/{Id}/admin", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleOrgCipherUpdateAdminPost))).Methods("POST")
-
-	mux.HandleFunc("/attachments/", api.HandleAttachments)
 	if len(bw.Cfg.VaultURL) > 4 {
 
 		mux.HandleFunc("/{rest:.*}", handler(proxy))

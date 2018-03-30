@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -160,16 +161,62 @@ func (h *APIHandler) HandleCollections(w http.ResponseWriter, req *http.Request)
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(data)
 }
-func HandleAttachments(w http.ResponseWriter, req *http.Request) {
-	path := strings.TrimPrefix(req.URL.Path, "/")
-	Openfile, err := os.Open(path)
-	defer Openfile.Close()
+func (h *APIHandler) HandleAttachments(w http.ResponseWriter, req *http.Request) {
+	email := auth.GetEmail(req)
+	vars := mux.Vars(req)
+	cipherID := vars["cipherId"]
+	file, header, err := req.FormFile("data")
+	if err != nil {
+		log.Println("[-] Error in req.FormFile ", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		fmt.Fprintf(w, "{'error': %s}", err)
+		return
+	}
+	defer file.Close()
+	token, err := uuid.NewV1()
+	os.MkdirAll("./attachments/"+cipherID, os.ModePerm)
+	f, err := os.OpenFile("./attachments/"+cipherID+"/"+token.String(), os.O_WRONLY|os.O_CREATE, 0666)
 	if err != nil {
 		log.Println(err)
 	}
-	Openfile.Seek(0, 0)
+	defer f.Close()
+	io.Copy(f, file)
+	cipher, err := h.db.GetCipher(cipherID)
+	if err != nil {
+		log.Println(err)
+	}
+	attach := bw.AttachmentData{
+		Id:       token.String(),
+		Url:      "http://localhost:8000/attachments/" + cipherID + "/" + token.String(), //http or https shouldn´t matter
+		FileName: header.Filename,
+		Size:     header.Size,
+		SizeName: strconv.FormatInt(header.Size, 10) + " Bytes",
+		Object:   "attachment",
+	}
+	*cipher.Attachments = append(*cipher.Attachments, attach)
+	h.db.UpdateCipher(*cipher.Id, cipher, email)
+	cipherPost := transformCipherToPost(cipher)
+	data, err := json.Marshal(cipherPost)
+	if err != nil {
+		log.Fatal(err)
+	}
 	w.Header().Set("Content-Type", "application/json")
-	io.Copy(w, Openfile)
+	w.Write(data)
+}
+
+func HandleAttachmentGet(w http.ResponseWriter, req *http.Request) {
+	vars := mux.Vars(req)
+	cipherID := vars["cipherId"]
+	attachmetnID := vars["attachmentId"]
+	path := "./attachments/" + cipherID + "/" + attachmetnID
+	openfile, err := os.Open(path)
+	defer openfile.Close()
+	if err != nil {
+		log.Println(err)
+	}
+	openfile.Seek(0, 0)
+	w.Header().Set("Content-Type", "application/json")
+	io.Copy(w, openfile)
 }
 
 func (h *APIHandler) HandleCipherPost(w http.ResponseWriter, req *http.Request) {
@@ -600,12 +647,12 @@ func (h *APIHandler) HandleOrg(w http.ResponseWriter, req *http.Request) {
 				Type:           0,
 				Enabled:        true,
 				MaxCollections: 2,
-				MaxStorageGb:   0,
+				MaxStorageGb:   1,
 				Seats:          2,
-				UseGroups:      false,
-				UseEvents:      false,
-				UseDirectory:   false,
-				UseTotp:        false,
+				UseGroups:      true,
+				UseEvents:      true,
+				UseDirectory:   true,
+				UseTotp:        true,
 				Object:         "profileOrganization",
 			}
 			organization := bw.OrganizationsData{
@@ -872,13 +919,13 @@ func (h *APIHandler) HandleOrgAcception(w http.ResponseWriter, req *http.Request
 	user.Status = 1
 	org := bw.OrgData{
 		Id:             user.OrgId,
-		Name:           user.Name,
+		Name:           user.Name, //problem is the user name not the organization name
 		Key:            "",
 		Status:         user.Status,
 		Type:           user.Type,
 		Enabled:        true,
 		MaxCollections: 2,
-		MaxStorageGb:   0,
+		MaxStorageGb:   1,
 		Seats:          2,
 		UseGroups:      true,
 		UseEvents:      true,
