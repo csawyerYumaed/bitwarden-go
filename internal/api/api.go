@@ -962,10 +962,10 @@ func sendInvite(organizationId string, organizationUserId string, email string, 
 		m := gomail.NewMessage()
 		m.SetHeader("From", bw.Cfg.Email)
 		m.SetHeader("To", email)
-		m.SetHeader("Subject", "Bitwarden Invetation")
+		m.SetHeader("Subject", "Bitwarden Invitation")
 		m.SetBody("text/html", "<p><a href="+bw.Cfg.VaultURL+":"+bw.Cfg.HostPort+"/#/accept-organization?organizationId="+organizationId+"&amp;organizationUserId="+organizationUserId+"&amp;email="+email+"&amp;organizationName="+organizationName+"&amp;token="+token+">"+bw.Cfg.VaultURL+":"+bw.Cfg.HostPort+"/#/accept-organization?organizationId="+organizationId+"&amp;organizationUserId="+organizationUserId+"&amp;email="+email+"&amp;organizationName="+organizationName+"&amp;token="+token+"</a></p>")
 
-		d := gomail.NewDialer(bw.Cfg.SmptServer, bw.Cfg.EmailPort, bw.Cfg.Email, bw.Cfg.Email)
+		d := gomail.NewDialer(bw.Cfg.SmtpServer, bw.Cfg.EmailPort, bw.Cfg.Email, bw.Cfg.Email)
 
 		if err := d.DialAndSend(m); err != nil {
 			panic(err)

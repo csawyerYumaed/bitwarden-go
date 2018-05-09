@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httputil"
@@ -24,7 +25,7 @@ func init() {
 	flag.StringVar(&bw.Cfg.VaultURL, "VaultURL", "", "Sets the vault proxy url")
 	flag.StringVar(&bw.Cfg.Email, "Email", "", "Sets the Email for organization invite")
 	flag.StringVar(&bw.Cfg.EmailPassword, "emailPassword", "", "Sets the Email password")
-	flag.StringVar(&bw.Cfg.SmptServer, "smptServer", "", "Sets the smtpServer address")
+	flag.StringVar(&bw.Cfg.SmtpServer, "smtpServer", "", "Sets the smtpServer address")
 	flag.IntVar(&bw.Cfg.EmailPort, "emailPort", 587, "Sets the Port for the email server")
 	flag.BoolVar(&bw.Cfg.PrintInvite, "printInvite", true, "Print the Invitation  for the organization or send an Email")
 	flag.BoolVar(&bw.Cfg.DisableRegistration, "disableRegistration", false, "Disables user registration.")
@@ -56,8 +57,8 @@ func main() {
 	authHandler := auth.New(db, bw.Cfg.SigningKey, bw.Cfg.JwtExpire)
 	apiHandler := api.New(db)
 
-	target := "http://localhost:4001"
-	//target := bw.Cfg.HostAddr + ":" + bw.Cfg.HostPort
+	//target := "http://localhost:4001"
+	target := bw.Cfg.VaultURL;
 	remote, err := url.Parse(target)
 	if err != nil {
 		panic(err)
@@ -105,14 +106,15 @@ func main() {
 	mux.Handle("/api/ciphers/{cipherId}/delete-admin", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleCipherDelete))).Methods("POST")
 	mux.Handle("/api/ciphers/{Id}/admin", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleOrgEditCipherGet))).Methods("GET")
 	mux.Handle("/api/ciphers/{Id}/admin", authHandler.JwtMiddleware(http.HandlerFunc(apiHandler.HandleOrgCipherUpdateAdminPost))).Methods("POST")
+	addr := fmt.Sprintf("%s:%s", bw.Cfg.HostAddr, bw.Cfg.HostPort)
 	if len(bw.Cfg.VaultURL) > 4 {
 
 		mux.HandleFunc("/{rest:.*}", handler(proxy))
 		http.Handle("/", mux)
 		if bw.Cfg.UseHTTPS == true {
-			http.ListenAndServeTLS(":8000", bw.Cfg.Crt, bw.Cfg.Key, mux)
+			http.ListenAndServeTLS(addr, bw.Cfg.Crt, bw.Cfg.Key, mux)
 		} else {
-			http.ListenAndServe(":8000", mux)
+			http.ListenAndServe(addr, mux)
 		}
 
 	}
@@ -120,7 +122,7 @@ func main() {
 	mux.Handle("/api/two-factor/authenticator", authHandler.JwtMiddleware(http.HandlerFunc(authHandler.VerifyAuthenticatorSecret)))
 	mux.Handle("/api/two-factor/disable", authHandler.JwtMiddleware(http.HandlerFunc(authHandler.HandleDisableTwoFactor)))
 	mux.Handle("/api/two-factor", authHandler.JwtMiddleware(http.HandlerFunc(authHandler.HandleTwoFactor)))
-	log.Println("Starting server on " + bw.Cfg.HostAddr + ":" + bw.Cfg.HostPort)
+	log.Println("Starting server on " + addr)
 }
 
 func handler(p *httputil.ReverseProxy) func(http.ResponseWriter, *http.Request) {

@@ -17,7 +17,7 @@ var Cfg struct {
 	Email               string
 	EmailPassword       string
 	EmailPort           int
-	SmptServer          string
+	SmtpServer          string
 	PrintInvite         bool
 	UseHTTPS            bool
 	Key                 string

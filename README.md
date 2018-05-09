@@ -69,7 +69,7 @@ At the moment these flags are available:
 - VaultURL: Sets the vault proxy url
 - Email: Sets the Email for organization invite
 - emailPassword: Sets the Email password
-- smptServer: Sets the smtpServer address
+- smtpServer: Sets the smtpServer address
 - emailPort: Sets the Port for the email server
 - printInvite: Print the Invitation for the organization or send an Email
 - disableRegistration: Disables user registration.
@@ -107,7 +107,7 @@ Share the link with the person you would like to invite.
 **2.  Invitation with Email**
 ```
 bitwarden-go -init
-bitwarden-go -Email your@email.com -emailPassword 123 -smptServer example.smpt.com -emailPort 587 -printInvite false
+bitwarden-go -Email your@email.com -emailPassword 123 -smtpServer example.smtp.com -emailPort 587 -printInvite false
 bitwarden-go -VaultURL http://localhost:4001
 ```
 Email with the invitation link is sent to the person. 
