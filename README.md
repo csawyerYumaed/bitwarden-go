@@ -7,7 +7,6 @@ project nor 8bit Solutions LLC.)*
 
 [![Build Status](https://travis-ci.org/Odysseus16/bitwarden-go.svg?branch=master)](https://travis-ci.org/Odysseus16/bitwarden-go)
 
-<<<<<<< HEAD
 A golang server compatible with the Bitwarden apps and plugins. The server has a small footprint and could be run locally on your computer, a Raspberry Pi or a small VPS. The data is stored in a local SQLite database.
 
 For more information on the protocol you can read the [documentation](https://github.com/jcs/bitwarden-ruby/blob/master/API.md) provided by [jcs](https://github.com/jcs)
@@ -18,7 +17,6 @@ Thank you very much VictorNine!
 A server compatible with the Bitwarden apps and plugins. The server has a small footprint and could be run locally on your computer, a Raspberry Pi or a small VPS. The data is stored in a local SQLite database.
 
 For more information on the protocol you can read the [documentation](https://github.com/jcs/bitwarden-ruby/blob/master/API.md) provided by [jcs](https://github.com/jcs)
->>>>>>> efbeba071d8edaedf04143a37552c012f0d7e983
 
 ### Usage
 #### Fetching the code
