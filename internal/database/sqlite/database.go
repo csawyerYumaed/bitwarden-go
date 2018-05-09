@@ -153,8 +153,52 @@ func (db *DB) UpdateAccountInfo(acc bw.Account) error {
 	if err != nil {
 		return err
 	}
+<<<<<<< HEAD
 
 	stmt, err := db.db.Prepare("UPDATE accounts SET refreshtoken=$1, privatekey=$2, pubkey=$3, organization =$4 WHERE id=$5")
+=======
+
+	fakeNewAPI(&ciph)
+
+	return ciph, nil
+}
+
+// Copy from data to new fields
+func fakeNewAPI(ciph *bw.Cipher) {
+	// TODO: Revrite this when the data field is removed
+	ciph.Card = nil // TODO: Implement
+	ciph.Fields = nil
+	ciph.Identity = nil // TODO: Implement
+	ciph.Name = ciph.Data.Name
+
+	if ciph.Data.Uri != nil {
+		ciph.Data.Uris = []bw.Uri{bw.Uri{
+			Uri:   ciph.Data.Uri,
+			Match: nil,
+		}}
+	}
+
+	if ciph.Data.Username != nil {
+		ciph.Login = bw.Login{
+			Username: ciph.Data.Username,
+			Totp:     ciph.Data.Totp,
+			Uri:      ciph.Data.Uri,
+			Uris:     ciph.Data.Uris,
+			Password: ciph.Data.Password,
+		}
+	}
+
+	ciph.Notes = ciph.Data.Notes
+	if ciph.Notes != nil {
+		ciph.SecureNote = bw.SecureNote{
+			Type: 0,
+		}
+	}
+}
+
+func (db *DB) GetCipher(owner string, ciphID string) (bw.Cipher, error) {
+	iowner, err := strconv.ParseInt(owner, 10, 64)
+>>>>>>> efbeba071d8edaedf04143a37552c012f0d7e983
 	if err != nil {
 		return err
 	}
@@ -249,7 +293,22 @@ func (db *DB) AddFolder(name string, owner string) (bw.Folder, error) {
 		RevisionDate: time.Now(),
 	}
 
+<<<<<<< HEAD
 	stmt, err := db.db.Prepare("INSERT INTO folders(id, name, revisiondate, owner) values(?,?,?, ?)")
+=======
+	lID, err := res.LastInsertId()
+	ciph.Id = fmt.Sprintf("%v", lID)
+
+	fakeNewAPI(&ciph)
+
+	return ciph, nil
+
+}
+
+// Important to check that the owner is correct before an update!
+func (db *DB) UpdateCipher(newData bw.Cipher, owner string, ciphID string) error {
+	iowner, err := strconv.ParseInt(owner, 10, 64)
+>>>>>>> efbeba071d8edaedf04143a37552c012f0d7e983
 	if err != nil {
 		return bw.Folder{}, err
 	}

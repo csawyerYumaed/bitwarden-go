@@ -81,6 +81,7 @@ func (acc Account) GetProfile() Profile {
 	return p
 }
 
+<<<<<<< HEAD
 type AttachmentData struct {
 	Id       string
 	Url      string
@@ -93,6 +94,58 @@ type AttachmentData struct {
 func (attachments *Attachments) Bytes() ([]byte, error) {
 	b, err := json.Marshal(attachments)
 	return b, err
+=======
+// The data we store and send to the client
+type Cipher struct {
+	Type                int
+	FolderId            *string // Must be pointer to output null in json. Android app will crash if not null
+	OrganizationId      *string
+	Favorite            bool
+	Edit                bool
+	Id                  string
+	Data                CipherData // deprecated TODO: Stop depending on this
+	Attachments         []string
+	OrganizationUseTotp bool
+	RevisionDate        time.Time
+	Object              string
+	CollectionIds       []string
+
+	Card       *string
+	Fields     []string
+	Identity   *string
+	Login      Login
+	Name       *string
+	Notes      *string // Must be pointer to output null in json. Android app will crash if not null
+	SecureNote SecureNote
+}
+
+type CipherData struct {
+	Uri      *string
+	Username *string
+	Password *string
+	Totp     *string // Must be pointer to output null in json. Android app will crash if not null
+	Name     *string
+	Notes    *string // Must be pointer to output null in json. Android app will crash if not null
+	Fields   []string
+	Uris     []Uri
+}
+
+type Uri struct {
+	Uri   *string
+	Match *string
+}
+
+type Login struct {
+	Password *string
+	Totp     *string // Must be pointer to output null in json. Android app will crash if not null
+	Uri      *string
+	Uris     []Uri
+	Username *string
+}
+
+type SecureNote struct {
+	Type int
+>>>>>>> efbeba071d8edaedf04143a37552c012f0d7e983
 }
 func (organizationsData *OrganizationsData) Bytes() ([]byte, error) {
 	b, err := json.Marshal(organizationsData)

@@ -753,6 +753,15 @@ func (h *APIHandler) HandleOrgCipherAdminPost(w http.ResponseWriter, req *http.R
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(data)
 
+<<<<<<< HEAD
+=======
+type loginData struct {
+	URI      string   `json:"uri"`
+	Username string   `json:"username"`
+	Password string   `json:"password"`
+	ToTp     string   `json:"totp"`
+	Uris     []bw.Uri `json:"uris"`
+>>>>>>> efbeba071d8edaedf04143a37552c012f0d7e983
 }
 
 func (h *APIHandler) HandleOrgCipherUpdateAdminPost(w http.ResponseWriter, req *http.Request) {
@@ -869,9 +878,20 @@ func (h *APIHandler) HandleOrgInvite(w http.ResponseWriter, req *http.Request) {
 		ContinuationToken: nil,
 		Object:            "list"}
 
+<<<<<<< HEAD
 	data, err := json.Marshal(organization)
 	if err != nil {
 		log.Fatal(err)
+=======
+	if cdata.Uri == nil {
+		if len(nciph.Login.Uris) > 0 { // TODO: Also add to Uris
+			cdata.Uri = nciph.Login.Uris[0].Uri
+		}
+	}
+
+	if *cdata.Username == "" {
+		cdata.Username = nil
+>>>>>>> efbeba071d8edaedf04143a37552c012f0d7e983
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(data)
